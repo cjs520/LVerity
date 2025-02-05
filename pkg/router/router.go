@@ -38,14 +38,6 @@ func SetupRouter() *gin.Engine {
 	api := r.Group("/api")
 	api.Use(middleware.JWTAuth())
 	{
-		// 设备管理
-		api.GET("/devices", handler.ListDevices)
-		api.POST("/devices", handler.CreateDevice)
-		api.GET("/devices/:id", handler.GetDevice)
-		api.PUT("/devices/:id", handler.UpdateDevice)
-		api.DELETE("/devices/:id", handler.DeleteDevice)
-		api.GET("/devices/stats", handler.GetDeviceStats)
-
 		// 授权管理
 		api.GET("/licenses", handler.ListLicenses)
 		api.POST("/licenses", handler.CreateLicense)

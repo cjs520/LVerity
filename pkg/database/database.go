@@ -3,6 +3,8 @@ package database
 import (
 	"fmt"
 	"log"
+	"os"
+	"path/filepath"
 	"sync"
 
 	"gorm.io/driver/sqlite"
@@ -27,12 +29,20 @@ type Config struct {
 func InitDB(config *Config) error {
 	var err error
 	once.Do(func() {
-		log.Printf("正在连接数据库: %s", config.DBPath)
+		log.Printf("正在连接SQLite数据库: %s", config.DBPath)
+		// 确保数据库目录存在
+		dbDir := filepath.Dir(config.DBPath)
+		if err := os.MkdirAll(dbDir, 0755); err != nil {
+			err = fmt.Errorf("创建数据库目录失败: %v", err)
+			return
+		}
+
+		// 连接SQLite数据库
 		DB, err = gorm.Open(sqlite.Open(config.DBPath), &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info),
 		})
 		if err != nil {
-			err = fmt.Errorf("连接数据库失败: %v", err)
+			err = fmt.Errorf("连接SQLite数据库失败: %v", err)
 			return
 		}
 
@@ -42,7 +52,7 @@ func InitDB(config *Config) error {
 			err = fmt.Errorf("数据库迁移失败: %v", err)
 			return
 		}
-		log.Println("数据库连接和迁移成功完成")
+		log.Println("SQLite数据库连接和迁移成功完成")
 	})
 	return err
 }

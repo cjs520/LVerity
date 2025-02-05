@@ -1,7 +1,8 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { handleApiError } from './error';
+import { logger } from './logger';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
+const baseURL = import.meta.env.VITE_API_BASE_URL || '';
 
 const axiosInstance = axios.create({
   baseURL,
@@ -19,17 +20,28 @@ axiosInstance.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // 记录请求日志
+    logger.logRequest(config);
     return config;
   },
   (error) => {
+    logger.logError(error);
     return Promise.reject(error);
   }
 );
 
 // 响应拦截器
 axiosInstance.interceptors.response.use(
-  (response) => response.data,
-  handleApiError
+  (response) => {
+    // 记录响应日志
+    logger.logResponse(response);
+    // 直接返回响应数据，不需要再次访问 .data
+    return response;
+  },
+  (error) => {
+    logger.logError(error);
+    return handleApiError(error);
+  }
 );
 
 export const request = {

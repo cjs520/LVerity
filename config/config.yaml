@@ -4,14 +4,11 @@ server:
   debug: true
 
 database:
-  host: "127.0.0.1"
-  port: 3306
-  user: "lverity"
-  password: "lverity123"
-  dbname: "lverity"
+  type: "sqlite"
+  path: "data/lverity.db"
 
 jwt:
-  secret: "your-secret-key"
+  secret: "lLuXxDz6L4Crj6miAXrbK6ygyMrBrC8S"
   expire: 24h
   issuer: "LVerity"
 

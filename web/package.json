@@ -17,6 +17,7 @@
     "antd": "^5.12.2",
     "axios": "^1.6.2",
     "dayjs": "^1.11.10",
+    "hls.js": "^1.4.12",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.21.0"
@@ -31,6 +32,7 @@
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
+    "less": "^4.2.2",
     "typescript": "^5.2.2",
     "vite": "^5.0.8"
   }

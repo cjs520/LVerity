@@ -3,19 +3,19 @@ SET CHARACTER SET utf8mb4;
 USE lverity;
 
 -- 插入默认角色
-INSERT INTO roles (id, name, description, status) VALUES
-('1', 'admin', '系统管理员', 'active'),
-('2', 'operator', '运营人员', 'active'),
-('3', 'viewer', '查看者', 'active');
+INSERT INTO roles (id, name, type, description) VALUES
+('1', 'admin', 'system', '系统管理员'),
+('2', 'operator', 'system', '运营人员'),
+('3', 'viewer', 'system', '查看者');
 
 -- 插入默认权限
-INSERT INTO permissions (id, code, name, description) VALUES
-('1', 'system:admin', '系统管理', '系统管理权限'),
-('2', 'license:manage', '授权管理', '授权管理权限'),
-('3', 'device:manage', '设备管理', '设备管理权限'),
-('4', 'user:manage', '用户管理', '用户管理权限'),
-('5', 'alert:manage', '告警管理', '告警管理权限'),
-('6', 'log:view', '日志查看', '日志查看权限');
+INSERT INTO permissions (id, resource, action) VALUES
+('1', 'system', 'admin'),
+('2', 'license', 'manage'),
+('3', 'device', 'manage'),
+('4', 'user', 'manage'),
+('5', 'alert', 'manage'),
+('6', 'log', 'view');
 
 -- 插入角色权限关联
 INSERT INTO role_permissions (role_id, permission_id) VALUES
