@@ -1,0 +1,43 @@
+services:
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root123
+      - MYSQL_DATABASE=lverity
+      - TZ=Asia/Shanghai
+      - MYSQL_ROOT_HOST=%
+      - LANG=C.UTF-8
+      - MYSQL_MAX_ALLOWED_PACKET=64M
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max-connections=1000
+      - --innodb-buffer-pool-size=1G
+      - --innodb-log-buffer-size=64M
+      - --skip-name-resolve
+      - --explicit_defaults_for_timestamp=1
+      - --sync_binlog=0
+      - --innodb_doublewrite=1
+      - --innodb_flush_log_at_timeout=10
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./database/conf/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
+    networks:
+      - lverity-db-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
+networks:
+  lverity-db-network:
+    driver: bridge
+
+volumes:
+  mysql-data:

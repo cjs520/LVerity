@@ -51,7 +51,8 @@ func Login(username, password string) (string, *model.User, error) {
 	}
 
 	// 更新最后登录时间
-	user.LastLogin = time.Now()
+	now := time.Now()
+	user.LastLogin = &now
 	err = UpdateUser(user)
 	if err != nil {
 		return "", nil, err
@@ -96,10 +97,11 @@ func CreateUser(username, password, roleID string) (*model.User, error) {
 
 	// 创建用户
 	user := &model.User{
-		ID:       common.GenerateUUID(),
-		Username: username,
-		RoleID:   roleID,
-		Status:   model.UserStatusActive,
+		ID:        common.GenerateUUID(),
+		Username:  username,
+		RoleID:    roleID,
+		Status:    model.UserStatusActive,
+		LastLogin: nil, // 使用*time.Time类型，允许为nil
 	}
 
 	// 设置密码

@@ -17,16 +17,19 @@ func main() {
 	}
 
 	// 初始化数据库
-	dbConfig := &database.Config{
-		DBPath: config.GetConfig().Database.DBName,
-	}
-	if err := database.InitDB(dbConfig); err != nil {
+	dbConfig := config.GetConfig().Database
+	if err := database.InitDB(&dbConfig); err != nil {
 		log.Fatalf("Failed to initialize database: %v", err)
 	}
 
 	// 初始化默认权限
 	if err := service.InitDefaultPermissions(); err != nil {
 		log.Printf("Warning: Failed to initialize default permissions: %v", err)
+	}
+
+	// 初始化管理员账户
+	if err := service.InitAdminUser(); err != nil {
+		log.Printf("Warning: Failed to initialize admin user: %v", err)
 	}
 
 	// 创建路由

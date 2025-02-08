@@ -4,10 +4,10 @@ server:
   mode: "debug"
 
 database:
-  host: "localhost"
+  host: "s.civilguard.es"
   port: 3306
-  user: "lverity"
-  password: "lverity123"
+  user: "root"
+  password: "root123"
   dbname: "lverity"
 
 jwt:

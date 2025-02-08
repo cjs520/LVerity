@@ -45,15 +45,25 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=root123
       - MYSQL_DATABASE=lverity
+      - TZ=Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-authentication-plugin=mysql_native_password
+      - --max-connections=1000
+      - --innodb-buffer-pool-size=1G
+      - --innodb-log-buffer-size=64M
     volumes:
       - mysql-data:/var/lib/mysql
+      - ./database/conf/mysql.cnf:/etc/mysql/conf.d/mysql.cnf:ro
     networks:
       - lverity-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot123"]
-      interval: 5s
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot123"]
+      interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 30s
     restart: unless-stopped
 
   db-init:

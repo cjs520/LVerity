@@ -10,7 +10,6 @@ import (
 	"errors"
 	"io"
 	"sort"
-	"golang.org/x/crypto/bcrypt"
 )
 
 // 用于授权码加密的密钥
@@ -118,28 +117,7 @@ func GenerateRandomBytes(length int) ([]byte, error) {
 	return bytes, nil
 }
 
-// HashPassword 对密码进行加盐哈希
-func HashPassword(password string, salt []byte) string {
-	// 将密码和盐值组合
-	combined := append([]byte(password), salt...)
-	
-	// 使用bcrypt进行哈希
-	hash, err := bcrypt.GenerateFromPassword(combined, bcrypt.DefaultCost)
-	if err != nil {
-		return ""
-	}
-	return string(hash)
-}
 
-// VerifyPassword 验证密码
-func VerifyPassword(hashedPassword string, password string, salt []byte) bool {
-	// 将密码和盐值组合
-	combined := append([]byte(password), salt...)
-	
-	// 验证密码
-	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), combined)
-	return err == nil
-}
 
 // GenerateID 生成唯一ID
 func GenerateID() string {

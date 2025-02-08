@@ -26,9 +26,11 @@ type ServerConfig struct {
 
 // DatabaseConfig 数据库配置
 type DatabaseConfig struct {
-	Type   string `yaml:"type"` // 数据库类型：sqlite
-	Path   string `yaml:"path"` // SQLite数据库文件路径
-	DBName string `yaml:"db_name"` // 数据库名称
+	Host     string `yaml:"host"`
+	Port     int    `yaml:"port"`
+	User     string `yaml:"user"`
+	Password string `yaml:"password"`
+	DBName   string `yaml:"dbname"`
 }
 
 // JWTConfig JWT配置
@@ -74,7 +76,11 @@ func LoadConfig() error {
 	// 3. 如果存在 YAML 配置文件，则从文件加载配置
 	configFile := os.Getenv("CONFIG_FILE")
 	if configFile == "" {
-		configFile = "config/config.yaml"
+		// 尝试在项目根目录下查找配置文件
+		configFile = "config.yaml"
+		if _, err := os.Stat(configFile); err != nil {
+			configFile = "../config.yaml"
+		}
 	}
 
 	if _, err := os.Stat(configFile); err == nil {
@@ -103,11 +109,20 @@ func LoadConfig() error {
 // loadFromEnv 从环境变量加载配置
 func loadFromEnv() {
 	// 数据库配置
-	if dbType := os.Getenv("DB_TYPE"); dbType != "" {
-		GlobalConfig.Database.Type = dbType
+	if dbHost := os.Getenv("DB_HOST"); dbHost != "" {
+		GlobalConfig.Database.Host = dbHost
 	}
-	if dbPath := os.Getenv("DB_PATH"); dbPath != "" {
-		GlobalConfig.Database.Path = dbPath
+	if dbPort := os.Getenv("DB_PORT"); dbPort != "" {
+		GlobalConfig.Database.Port = parseInt(dbPort, 3306)
+	}
+	if dbUser := os.Getenv("DB_USER"); dbUser != "" {
+		GlobalConfig.Database.User = dbUser
+	}
+	if dbPassword := os.Getenv("DB_PASSWORD"); dbPassword != "" {
+		GlobalConfig.Database.Password = dbPassword
+	}
+	if dbName := os.Getenv("DB_NAME"); dbName != "" {
+		GlobalConfig.Database.DBName = dbName
 	}
 
 	// JWT配置
