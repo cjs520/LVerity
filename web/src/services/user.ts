@@ -1,5 +1,5 @@
 import { User, UserCreateRequest, UserUpdateRequest } from '../models/user';
-import api from './api';
+import api from './request';
 
 export const userService = {
   // 获取用户列表

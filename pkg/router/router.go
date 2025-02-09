@@ -34,6 +34,13 @@ func SetupRouter() *gin.Engine {
 		user.POST("/change-password", handler.ChangePassword)
 	}
 
+	// 用户管理路由组
+	users := r.Group("/users")
+	users.Use(middleware.JWTAuth())
+	{
+		users.GET("", handler.ListUsers)
+	}
+
 	// 需要认证的API路由组
 	api := r.Group("/api")
 	api.Use(middleware.JWTAuth())

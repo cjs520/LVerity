@@ -32,12 +32,14 @@ export function handleApiError(error: any) {
       message.error(apiError.message || '操作失败，请重试');
   }
   
-  // 上报错误到监控系统
-  console.error('[API Error]', {
-    status: error.response?.status,
-    url: error.config?.url,
-    error: apiError,
-  });
+  // 仅在开发环境下输出错误日志
+  if (import.meta.env.MODE === 'development' || import.meta.env.VITE_LOG_LEVEL === 'debug') {
+    console.error('[API Error]', {
+      status: error.response?.status,
+      url: error.config?.url,
+      error: apiError,
+    });
+  }
 
   return Promise.reject(error);
 }

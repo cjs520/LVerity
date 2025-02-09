@@ -7,8 +7,6 @@ import (
 	"time"
 )
 
-var jwtSecret = []byte(config.GlobalConfig.JWT.Secret) // 在实际应用中应该从配置中读取
-
 // ErrInvalidToken 无效的令牌
 var ErrInvalidToken = errors.New("invalid token")
 
@@ -23,7 +21,7 @@ type Claims struct {
 // ValidateToken 验证JWT token
 func ValidateToken(tokenString string) (*Claims, error) {
 	token, err := jwt.ParseWithClaims(tokenString, &Claims{}, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
+		return []byte(config.GlobalConfig.JWT.Secret), nil
 	})
 
 	if err != nil {
@@ -51,7 +49,7 @@ func GenerateToken(userID, username, roleID string) (string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString([]byte(config.GlobalConfig.JWT.Secret))
 }
 
 // CheckPermission 检查权限

@@ -14,7 +14,7 @@ class Logger {
   private isDebug: boolean;
 
   private constructor() {
-    this.isDebug = import.meta.env.MODE === 'development';
+    this.isDebug = import.meta.env.MODE === 'development' || import.meta.env.VITE_LOG_LEVEL === 'debug';
   }
 
   public static getInstance(): Logger {
@@ -35,22 +35,23 @@ class Logger {
 
   private log(level: LogLevel, message: string, data?: any) {
     const logEntry = this.formatLog(level, message, data);
-
-    switch (level) {
-      case 'info':
-        console.log(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${message}`, data || '');
-        break;
-      case 'warn':
-        console.warn(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${message}`, data || '');
-        break;
-      case 'error':
-        console.error(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${message}`, data || '');
-        break;
-      case 'debug':
-        if (this.isDebug) {
+    
+    // 在开发环境下输出所有日志
+    if (this.isDebug) {
+      switch (level) {
+        case 'error':
+          console.error(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${message}`, data || '');
+          break;
+        case 'warn':
+          console.warn(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${message}`, data || '');
+          break;
+        case 'info':
+          console.info(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${message}`, data || '');
+          break;
+        case 'debug':
           console.debug(`[${logEntry.timestamp}] [${level.toUpperCase()}] ${message}`, data || '');
-        }
-        break;
+          break;
+      }
     }
 
     return logEntry;

@@ -64,43 +64,113 @@ var GlobalConfig Config
 
 // LoadConfig 加载配置
 func LoadConfig() error {
-	// 1. 加载 .env 文件
-	if err := godotenv.Load(); err != nil {
-		// 如果 .env 文件不存在，不返回错误，继续使用环境变量
-		fmt.Printf("Warning: .env file not found: %v\n", err)
+	// 1. 设置默认配置
+	setDefaultConfig()
+
+	// 2. 加载 .env 文件
+	if err := loadEnvFile(); err != nil {
+		fmt.Printf("Warning: %v\n", err)
 	}
 
-	// 2. 从环境变量加载配置
+	// 3. 从环境变量加载配置
 	loadFromEnv()
 
-	// 3. 如果存在 YAML 配置文件，则从文件加载配置
+	// 4. 从配置文件加载
+	if err := loadFromFile(); err != nil {
+		fmt.Printf("Warning: %v\n", err)
+	}
+
+	// 5. 验证配置
+	if err := validateConfig(); err != nil {
+		return fmt.Errorf("配置验证失败: %v", err)
+	}
+
+	return nil
+}
+
+// setDefaultConfig 设置默认配置
+func setDefaultConfig() {
+	GlobalConfig = Config{
+		Server: ServerConfig{
+			Host:  "0.0.0.0",
+			Port:  8080,
+			Debug: false,
+		},
+		JWT: JWTConfig{
+			Expire: 24 * time.Hour,
+			Issuer: "LVerity",
+		},
+		CORS: CORSConfig{
+			AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+			AllowedHeaders:   []string{"Content-Type", "Authorization"},
+			AllowCredentials: true,
+			MaxAge:          86400,
+		},
+		Log: LogConfig{
+			Level:      "info",
+			MaxSize:    100,
+			MaxBackups: 3,
+			MaxAge:     28,
+			Compress:   true,
+		},
+	}
+}
+
+// loadEnvFile 加载环境变量文件
+func loadEnvFile() error {
+	envFiles := []string{".env", ".env.local"}
+	for _, file := range envFiles {
+		if err := godotenv.Load(file); err == nil {
+			return nil
+		}
+	}
+	return fmt.Errorf("未找到环境变量文件 (.env, .env.local)")
+}
+
+// loadFromFile 从配置文件加载
+func loadFromFile() error {
 	configFile := os.Getenv("CONFIG_FILE")
 	if configFile == "" {
-		// 尝试在项目根目录下查找配置文件
 		configFile = "config.yaml"
 		if _, err := os.Stat(configFile); err != nil {
 			configFile = "../config.yaml"
 		}
 	}
 
-	if _, err := os.Stat(configFile); err == nil {
-		data, err := os.ReadFile(configFile)
-		if err != nil {
-			return fmt.Errorf("failed to read config file: %v", err)
-		}
+	if _, err := os.Stat(configFile); err != nil {
+		return fmt.Errorf("配置文件不存在: %s", configFile)
+	}
 
-		if err := yaml.Unmarshal(data, &GlobalConfig); err != nil {
-			return fmt.Errorf("failed to parse config file: %v", err)
-		}
+	data, err := os.ReadFile(configFile)
+	if err != nil {
+		return fmt.Errorf("读取配置文件失败: %v", err)
+	}
 
-		// 解析时间配置
-		if GlobalConfig.JWT.Expire != 0 {
-			duration, err := time.ParseDuration(GlobalConfig.JWT.Expire.String())
-			if err != nil {
-				return fmt.Errorf("invalid JWT expire time: %v", err)
-			}
-			GlobalConfig.JWT.Expire = duration
-		}
+	if err := yaml.Unmarshal(data, &GlobalConfig); err != nil {
+		return fmt.Errorf("解析配置文件失败: %v", err)
+	}
+
+	return nil
+}
+
+// validateConfig 验证配置
+func validateConfig() error {
+	// 验证必需的配置项
+	if GlobalConfig.JWT.Secret == "" {
+		return fmt.Errorf("JWT密钥未配置")
+	}
+
+	// 验证JWT过期时间
+	if GlobalConfig.JWT.Expire <= 0 {
+		return fmt.Errorf("无效的JWT过期时间")
+	}
+
+	// 验证数据库配置
+	if GlobalConfig.Database.Host == "" ||
+		GlobalConfig.Database.User == "" ||
+		GlobalConfig.Database.Password == "" ||
+		GlobalConfig.Database.DBName == "" {
+		return fmt.Errorf("数据库配置不完整")
 	}
 
 	return nil
